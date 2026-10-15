@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>[Project name] · Architecture Reference</title>
+<!--
+  Human-readable expansion of context/ARCHITECTURE.md.
+  ARCHITECTURE.md is the source of truth and the agent reads it.
+  This page explains the same system in more depth for later reference.
+  If the two disagree, ARCHITECTURE.md wins: fix this page.
+  Replace every [bracketed] placeholder. Self-contained: no external assets.
+  Every package, plugin, tool and external service the project uses must
+  have an entry in the "Packages, plugins and tools" section, with the
+  reason it was chosen. Add the entry in the same change that adds the dependency.
+  This file lives in local-docs/, which is gitignored.
+-->
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --border: #30363d;
+    --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff;
+    --ok: #3fb950; --warn: #d29922; --danger: #f85149;
+    --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: light) {
+    :root { --bg:#fff; --surface:#f6f8fa; --border:#d0d7de; --text:#1f2328; --muted:#59636e; --accent:#0969da; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.6 var(--sans); }
+  .layout { display:grid; grid-template-columns: 220px 1fr; max-width:1100px; margin:0 auto; }
+  nav { position:sticky; top:0; align-self:start; height:100vh; padding:2rem 1rem; border-right:1px solid var(--border); }
+  nav a { display:block; color:var(--muted); text-decoration:none; padding:.25rem 0; font-size:.9rem; }
+  nav a:hover { color:var(--accent); }
+  main { padding:2rem 2.5rem 4rem; min-width:0; }
+  h1 { margin-top:0; font-size:2rem; }
+  h2 { margin-top:3rem; padding-top:1rem; border-top:1px solid var(--border); font-size:1.4rem; }
+  h3 { margin-top:1.75rem; font-size:1.05rem; }
+  p, li { color:var(--text); }
+  .lede, .note { color:var(--muted); }
+  code { font-family:var(--mono); font-size:.9em; background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:.1em .35em; }
+  pre { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; overflow:auto; font:.85rem/1.5 var(--mono); }
+  table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:.92rem; }
+  th, td { text-align:left; padding:.55rem .75rem; border:1px solid var(--border); vertical-align:top; }
+  th { background:var(--surface); }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem 1.25rem; margin:1rem 0; }
+  .invariant { border-left:4px solid var(--danger); }
+  .invariant strong { color:var(--danger); }
+  .dep { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem 1.25rem; margin:1rem 0; }
+  .dep h4 { margin:0 0 .25rem; font-size:1rem; }
+  .dep .meta { color:var(--muted); font:.8rem var(--mono); margin-bottom:.6rem; }
+  .dep dl { display:grid; grid-template-columns:120px 1fr; gap:.35rem 1rem; margin:0; font-size:.92rem; }
+  .dep dt { color:var(--muted); }
+  .dep dd { margin:0; }
+  .tag { display:inline-block; font:.72rem var(--mono); border:1px solid var(--border); border-radius:99px; padding:0 .5rem; margin-left:.4rem; color:var(--accent); }
+  .diagram { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; overflow:auto; }
+  .diagram svg { width:100%; height:auto; min-width:640px; }
+  .diagram rect { fill:var(--bg); stroke:var(--border); stroke-width:1.5; }
+  .diagram rect.hl { stroke:var(--accent); }
+  .diagram text { fill:var(--text); font:13px var(--sans); text-anchor:middle; }
+  .diagram text.sub { fill:var(--muted); font-size:11px; }
+  .diagram line { stroke:var(--muted); stroke-width:1.5; marker-end:url(#arrow); }
+  @media (max-width: 800px) {
+    .layout { display:block; } nav { position:static; height:auto; border-right:0; border-bottom:1px solid var(--border); }
+    main { padding:1.5rem 1rem 3rem; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav aria-label="Sections">
+  <strong>Architecture</strong>
+  <a href="#overview">Overview</a>
+  <a href="#stack">Stack</a>
+  <a href="#dependencies">Packages, plugins, tools</a>
+  <a href="#diagram">System diagram</a>
+  <a href="#boundaries">System boundaries</a>
+  <a href="#flows">Key flows</a>
+  <a href="#storage">Storage model</a>
+  <a href="#auth">Auth and access</a>
+  <a href="#invariants">Invariants</a>
+  <a href="#decisions">Decisions</a>
+  <a href="#extending">Extending the system</a>
+</nav>
+
+<main>
+<h1>[Project name]: Architecture Reference</h1>
+<p class="lede">Last updated [YYYY-MM-DD]. Source of truth: <code>context/ARCHITECTURE.md</code>.</p>
+
+<h2 id="overview">Overview</h2>
+<p>[Two or three paragraphs. What the system does, its main parts, and how they fit
+together. Written for someone returning after months away, or seeing the project
+for the first time.]</p>
+
+<h2 id="stack">Stack</h2>
+<p>[Why this stack was chosen, in a sentence or two.]</p>
+<table>
+  <thead><tr><th>Layer</th><th>Technology</th><th>Version</th><th>Role</th><th>Why this one</th></tr></thead>
+  <tbody>
+    <tr><td>Framework</td><td>[Next.js + TypeScript]</td><td>[15.x]</td><td>[Role]</td><td>[Reason]</td></tr>
+    <tr><td>UI</td><td>[Tailwind + shadcn/ui]</td><td>[x.y]</td><td>[Role]</td><td>[Reason]</td></tr>
+    <tr><td>Auth</td><td>[Clerk]</td><td>[x.y]</td><td>[Role]</td><td>[Reason]</td></tr>
+    <tr><td>Database</td><td>[Prisma + PostgreSQL]</td><td>[x.y]</td><td>[Role]</td><td>[Reason]</td></tr>
+  </tbody>
+</table>
+
+<h2 id="dependencies">Packages, plugins and tools</h2>
+<p>Every dependency in the project, what it does and why it is here. If it is in
+<code>package.json</code> (or the lockfile, CI config, editor config, or a hosted
+dashboard), it has an entry. Nothing is added without one.</p>
+
+<h3>At a glance</h3>
+<table>
+  <thead><tr><th>Name</th><th>Kind</th><th>Version</th><th>Used for</th><th>Removal cost</th></tr></thead>
+  <tbody>
+    <tr><td>[next]</td><td>[Package: runtime]</td><td>[15.x]</td><td>[Routing, rendering, server actions]</td><td>[High]</td></tr>
+    <tr><td>[zod]</td><td>[Package: runtime]</td><td>[x.y]</td><td>[Input validation at boundaries]</td><td>[Medium]</td></tr>
+    <tr><td>[eslint]</td><td>[Package: dev]</td><td>[x.y]</td><td>[Linting in make check]</td><td>[Low]</td></tr>
+    <tr><td>[prettier-plugin-tailwindcss]</td><td>[Plugin]</td><td>[x.y]</td><td>[Class ordering]</td><td>[Low]</td></tr>
+    <tr><td>[GitHub Actions]</td><td>[Tool: CI]</td><td>[n/a]</td><td>[Runs make check on every PR]</td><td>[Medium]</td></tr>
+    <tr><td>[Clerk]</td><td>[Service]</td><td>[n/a]</td><td>[Authentication]</td><td>[High]</td></tr>
+  </tbody>
+</table>
+
+<h3>Runtime packages</h3>
+<p class="note">Code shipped to users or run in production. One card per package.</p>
+<div class="dep">
+  <h4>[next]<span class="tag">[runtime]</span></h4>
+  <div class="meta">[15.x] · [npm] · [docs URL]</div>
+  <dl>
+    <dt>What it does</dt><dd>[One or two sentences.]</dd>
+    <dt>Why this one</dt><dd>[The requirement it meets and the alternatives rejected, e.g. Remix, Vite + React Router.]</dd>
+    <dt>Where it is used</dt><dd>[Folders or boundaries that import it.]</dd>
+    <dt>Constraints</dt><dd>[Rules, gotchas, version pins, things agents must not do with it.]</dd>
+    <dt>If removed</dt><dd>[What breaks or must be replaced.]</dd>
+    <dt>Decision</dt><dd>[dd-mm-yyyy entry in context/DECISIONS.md, if any]</dd>
+  </dl>
+</div>
+
+<h3>Dev dependencies</h3>
+<p class="note">Build, lint, type-check, test and codegen tools. Same card format.</p>
+<div class="dep">
+  <h4>[vitest]<span class="tag">[dev]</span></h4>
+  <div class="meta">[x.y] · [npm] · [docs URL]</div>
+  <dl>
+    <dt>What it does</dt><dd>[Test runner.]</dd>
+    <dt>Why this one</dt><dd>[Reason and alternatives rejected.]</dd>
+    <dt>Where it is used</dt><dd>[<code>npm test</code>, <code>make check</code>.]</dd>
+    <dt>Constraints</dt><dd>[Config location, conventions.]</dd>
+  </dl>
+</div>
+
+<h3>Plugins and extensions</h3>
+<p class="note">Bundler, framework, Prettier and ESLint plugins, editor extensions the team relies on, MCP servers and agent skills.</p>
+<div class="dep">
+  <h4>[prettier-plugin-tailwindcss]<span class="tag">[plugin]</span></h4>
+  <div class="meta">[x.y] · [attaches to: Prettier]</div>
+  <dl>
+    <dt>What it does</dt><dd>[Sorts Tailwind classes into a canonical order.]</dd>
+    <dt>Why this one</dt><dd>[Reason.]</dd>
+    <dt>Constraints</dt><dd>[Where it is configured, what it must not touch.]</dd>
+  </dl>
+</div>
+
+<h3>Tooling and infrastructure</h3>
+<p class="note">CLIs, CI, hosting, package manager, Node version manager, Git hooks, and anything else that is not imported by code.</p>
+<div class="dep">
+  <h4>[GitHub Actions]<span class="tag">[CI]</span></h4>
+  <div class="meta">[n/a] · [.github/workflows/]</div>
+  <dl>
+    <dt>What it does</dt><dd>[Runs <code>make check</code> on every pull request.]</dd>
+    <dt>Why this one</dt><dd>[Reason.]</dd>
+    <dt>Constraints</dt><dd>[Required checks, secrets it can read.]</dd>
+  </dl>
+</div>
+
+<h3>External services</h3>
+<p class="note">Hosted products the app talks to. Include the account, environment variables and what happens when the service is down.</p>
+<div class="dep">
+  <h4>[Clerk]<span class="tag">[service]</span></h4>
+  <div class="meta">[n/a] · [dashboard URL]</div>
+  <dl>
+    <dt>What it does</dt><dd>[Sign-in, sessions, user management.]</dd>
+    <dt>Why this one</dt><dd>[Reason and alternatives rejected.]</dd>
+    <dt>Configuration</dt><dd>[<code>[AUTH_SECRET_KEY]</code>, <code>[AUTH_PUBLIC_KEY]</code>; see local-docs/setup.md.]</dd>
+    <dt>On outage</dt><dd>[Behaviour: fail closed, show error, degrade.]</dd>
+    <dt>Cost / limits</dt><dd>[Free tier limits, pricing triggers.]</dd>
+  </dl>
+</div>
+
+<h3>Considered and rejected</h3>
+<table>
+  <thead><tr><th>Option</th><th>Instead of</th><th>Why not</th></tr></thead>
+  <tbody>
+    <tr><td>[Alternative]</td><td>[Chosen tool]</td><td>[Reason]</td></tr>
+  </tbody>
+</table>
+
+<h2 id="diagram">System diagram</h2>
+<p class="note">Replace the boxes and labels with your real components.</p>
+<div class="diagram">
+<svg viewBox="0 0 760 240" role="img" aria-label="System diagram">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8b949e"/>
+    </marker>
+  </defs>
+  <rect x="10"  y="90" width="140" height="60" rx="8"/><text x="80"  y="118">[Browser]</text><text class="sub" x="80"  y="136">[client UI]</text>
+  <rect class="hl" x="230" y="90" width="140" height="60" rx="8"/><text x="300" y="118">[App server]</text><text class="sub" x="300" y="136">[routes / actions]</text>
+  <rect x="230" y="10" width="140" height="50" rx="8"/><text x="300" y="40">[Auth provider]</text>
+  <rect x="460" y="40" width="140" height="60" rx="8"/><text x="530" y="68">[Database]</text><text class="sub" x="530" y="86">[metadata, ownership]</text>
+  <rect x="460" y="140" width="140" height="60" rx="8"/><text x="530" y="168">[File storage]</text><text class="sub" x="530" y="186">[large artifacts]</text>
+  <line x1="150" y1="120" x2="228" y2="120"/>
+  <line x1="300" y1="88"  x2="300" y2="62"/>
+  <line x1="370" y1="108" x2="458" y2="76"/>
+  <line x1="370" y1="132" x2="458" y2="164"/>
+</svg>
+</div>
+
+<h2 id="boundaries">System boundaries</h2>
+<p>Each folder owns one responsibility. Do not reach across a boundary; go through its public surface.</p>
+<table>
+  <thead><tr><th>Folder</th><th>Owns</th><th>Must not</th></tr></thead>
+  <tbody>
+    <tr><td><code>[folder/]</code></td><td>[Responsibility]</td><td>[What never goes here]</td></tr>
+    <tr><td><code>[folder/]</code></td><td>[Responsibility]</td><td>[What never goes here]</td></tr>
+    <tr><td><code>[folder/]</code></td><td>[Responsibility]</td><td>[What never goes here]</td></tr>
+  </tbody>
+</table>
+
+<h2 id="flows">Key flows</h2>
+<h3>[Flow name, e.g. Create a project]</h3>
+<ol>
+  <li>[Step: what the user does]</li>
+  <li>[Step: which boundary handles it, what is validated]</li>
+  <li>[Step: what is written, and where]</li>
+  <li>[Step: what the user sees]</li>
+</ol>
+<p class="note">Add one block per important flow. Include the failure path: what happens on invalid input, unauthorized access, or a downstream outage.</p>
+
+<h2 id="storage">Storage model</h2>
+<table>
+  <thead><tr><th>Store</th><th>What lives here</th><th>What must not</th></tr></thead>
+  <tbody>
+    <tr><td>[Database]</td><td>[metadata, ownership, relationships]</td><td>[large blobs]</td></tr>
+    <tr><td>[File / blob storage]</td><td>[generated files, media]</td><td>[queryable metadata]</td></tr>
+    <tr><td>[Cache]</td><td>[what, and TTL]</td><td>[source-of-truth data]</td></tr>
+  </tbody>
+</table>
+<h3>Data model</h3>
+<pre>[Entity]  1---*  [Entity]
+[Entity]  *---1  [Owner]
+[Key fields and relationships, sketched in plain text or ASCII.]</pre>
+
+<h2 id="auth">Auth and access</h2>
+<ul>
+  <li><strong>Authentication:</strong> [how users prove who they are]</li>
+  <li><strong>Ownership:</strong> [how a resource is tied to an owner]</li>
+  <li><strong>Authorization:</strong> [where and how access is checked, and that it happens before every mutation]</li>
+</ul>
+
+<h2 id="invariants">Invariants</h2>
+<p>Rules the codebase must never violate. Each one includes why it exists.</p>
+<div class="card invariant"><strong>1.</strong> [Rule.] <span class="note">Why: [reason].</span></div>
+<div class="card invariant"><strong>2.</strong> [Rule.] <span class="note">Why: [reason].</span></div>
+<div class="card invariant"><strong>3.</strong> [Rule.] <span class="note">Why: [reason].</span></div>
+<div class="card invariant"><strong>4.</strong> [Rule.] <span class="note">Why: [reason].</span></div>
+
+<h2 id="decisions">Decisions that shaped this</h2>
+<p>Short list with pointers. The full record is in <code>context/DECISIONS.md</code>.</p>
+<ul>
+  <li>[dd-mm-yyyy] [Decision, one line]</li>
+</ul>
+
+<h2 id="extending">Extending the system</h2>
+<p>[Where a new feature goes, which invariants are most likely to be tested by new work.]</p>
+<p>Before adding a dependency: check whether an existing entry above already covers
+the need, get approval (see hard constraints in <code>AGENTS.md</code>), then add its
+card to "Packages, plugins and tools" in the same change.</p>
+
+</main>
+</div>
+</body>
+</html>

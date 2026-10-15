@@ -1,0 +1,6 @@
+{
+  "name": "learning-tools",
+  "description": "/interview-prep refreshes you on a repo and mock-interviews you, /close-session writes a session hand-off summary",
+  "version": "1.0.0",
+  "author": { "name": "Paula Farrugia" }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "project-foundation",
+  "description": "AI project foundation: /init-project copies and fills in the context templates, /test-me checks the personal goals were reached",
+  "version": "1.0.0",
+  "author": { "name": "Paula Farrugia" }
+}

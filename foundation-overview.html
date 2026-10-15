@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Project Foundation · Setup Overview</title>
+<style>
+  :root {
+    --bg:#0d1117; --surface:#161b22; --border:#30363d; --text:#e6edf3; --muted:#8b949e;
+    --accent:#58a6ff; --ok:#3fb950; --warn:#d29922;
+    --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  @media (prefers-color-scheme: light) {
+    :root { --bg:#fff; --surface:#f6f8fa; --border:#d0d7de; --text:#1f2328; --muted:#59636e; --accent:#0969da; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.6 var(--sans); }
+  .layout { display:grid; grid-template-columns:220px 1fr; max-width:1100px; margin:0 auto; }
+  nav { position:sticky; top:0; align-self:start; height:100vh; padding:2rem 1rem; border-right:1px solid var(--border); }
+  nav a { display:block; color:var(--muted); text-decoration:none; padding:.25rem 0; font-size:.9rem; }
+  nav a:hover { color:var(--accent); }
+  main { padding:2rem 2.5rem 4rem; min-width:0; }
+  h1 { margin-top:0; font-size:2rem; }
+  h2 { margin-top:3rem; padding-top:1rem; border-top:1px solid var(--border); font-size:1.4rem; }
+  h3 { margin:0 0 .25rem; font-size:1.05rem; }
+  .lede, .note { color:var(--muted); }
+  code { font-family:var(--mono); font-size:.9em; background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:.1em .35em; }
+  pre { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; overflow:auto; font:.85rem/1.5 var(--mono); }
+  table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:.92rem; }
+  th, td { text-align:left; padding:.55rem .75rem; border:1px solid var(--border); vertical-align:top; }
+  th { background:var(--surface); }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem 1.25rem; margin:1rem 0; }
+  .card dl { display:grid; grid-template-columns:130px 1fr; gap:.3rem 1rem; margin:.5rem 0 0; font-size:.92rem; }
+  .card dt { color:var(--muted); }
+  .card dd { margin:0; }
+  .path { font:.8rem var(--mono); color:var(--muted); margin-bottom:.4rem; }
+  .tag { display:inline-block; font:.72rem var(--mono); border:1px solid var(--border); border-radius:99px; padding:0 .5rem; margin-left:.4rem; }
+  .tag.git { color:var(--ok); } .tag.local { color:var(--warn); }
+  .steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; }
+  .steps .card { margin:0; }
+  .diagram { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; overflow:auto; }
+  .diagram svg { width:100%; height:auto; min-width:640px; }
+  .diagram rect { fill:var(--bg); stroke:var(--border); stroke-width:1.5; }
+  .diagram rect.hl { stroke:var(--accent); }
+  .diagram text { fill:var(--text); font:13px var(--sans); text-anchor:middle; }
+  .diagram text.sub { fill:var(--muted); font-size:11px; }
+  .diagram line { stroke:var(--muted); stroke-width:1.5; marker-end:url(#arrow); }
+  @media (max-width:800px) {
+    .layout { display:block; } nav { position:static; height:auto; border-right:0; border-bottom:1px solid var(--border); }
+    main { padding:1.5rem 1rem 3rem; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav aria-label="Sections">
+  <strong>Foundation</strong>
+  <a href="#why">Why it exists</a>
+  <a href="#flow">How a session runs</a>
+  <a href="#layout">File layout</a>
+  <a href="#entry">Entry files</a>
+  <a href="#context">Context docs</a>
+  <a href="#local">Local docs</a>
+  <a href="#rules">Rules</a>
+  <a href="#init">Using it</a>
+  <a href="#testme">Testing goals</a>
+  <a href="#interviewprep">Interview prep</a>
+  <a href="#closesession">Close session</a>
+</nav>
+
+<main>
+<h1>AI Project Foundation</h1>
+<p class="lede">The templates I copy into a new project during initialization. This page explains the setup and why each file is in it.</p>
+
+<h2 id="why">Why it exists</h2>
+<p>A coding agent has no memory between sessions and no view of the decisions behind the code. Left alone it guesses, and the guesses compound. Two failures follow:</p>
+<ul>
+  <li><strong>Vibe-coding collapse.</strong> The agent invents structure as it goes, then contradicts itself.</li>
+  <li><strong>Feature drift.</strong> Weeks later the agent has forgotten the conventions and "fixes" things that were deliberate.</li>
+</ul>
+<p>The foundation fixes both by putting the thinking in files. I decide what is built, how, and what the rules are. The agent reads those files first, every session, and executes.</p>
+
+<h2 id="flow">How a session runs</h2>
+<div class="diagram">
+<svg viewBox="0 0 760 170" role="img" aria-label="Session flow">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8b949e"/>
+    </marker>
+  </defs>
+  <rect x="10"  y="55" width="130" height="60" rx="8"/><text x="75"  y="82">CLAUDE.md</text><text class="sub" x="75"  y="100">points to</text>
+  <rect class="hl" x="180" y="55" width="130" height="60" rx="8"/><text x="245" y="82">AGENTS.md</text><text class="sub" x="245" y="100">entry point</text>
+  <rect x="350" y="10" width="150" height="50" rx="8"/><text x="425" y="40">context/*.md</text>
+  <rect x="350" y="110" width="150" height="50" rx="8"/><text x="425" y="140">make check</text>
+  <rect x="560" y="55" width="190" height="60" rx="8"/><text x="655" y="82">Work on next task</text><text class="sub" x="655" y="100">then update PROGRESS.md</text>
+  <line x1="140" y1="85" x2="178" y2="85"/>
+  <line x1="310" y1="75" x2="348" y2="45"/>
+  <line x1="310" y1="95" x2="348" y2="130"/>
+  <line x1="500" y1="45" x2="558" y2="75"/>
+  <line x1="500" y1="135" x2="558" y2="98"/>
+</svg>
+</div>
+<div class="steps" style="margin-top:1rem">
+  <div class="card"><h3>Clock in</h3><p class="note">Read <code>PROGRESS.md</code> and <code>DECISIONS.md</code>, run <code>make check</code>, continue from "Next Steps".</p></div>
+  <div class="card"><h3>Work</h3><p class="note">One feature unit at a time, against the context docs. No invented behaviour.</p></div>
+  <div class="card"><h3>Clock out</h3><p class="note">Update <code>PROGRESS.md</code> with evidence, log decisions, run <code>make check</code>, commit.</p></div>
+</div>
+
+<h2 id="layout">File layout</h2>
+<pre>paula-tools-marketplace/
+├── README.md                      what this is, how to install and use it
+├── AGENTS.md, CLAUDE.md           repo-only: rules for maintaining this repo (NOT copied)
+├── foundation-overview.html       this page (not copied into projects)
+├── .claude-plugin/marketplace.json   the paula-tools marketplace: lists both plugins
+└── plugins/
+    ├── learning-tools/            plugin (NOT copied)
+    │   ├── .claude-plugin/plugin.json
+    │   └── skills/
+    │       ├── interview-prep/SKILL.md
+    │       └── close-session/SKILL.md
+    └── project-foundation/        plugin (NOT copied)
+        ├── .claude-plugin/plugin.json
+        ├── skills/
+        │   ├── init-project/      SKILL.md, SECTIONS.md, EXISTING.md
+        │   └── test-me/SKILL.md
+        └── templates/             copy the contents into a new project root
+            ├── AGENTS.md
+            ├── CLAUDE.md
+            ├── Makefile
+            ├── context/
+            │   ├── PROJECT.md
+            │   ├── ARCHITECTURE.md
+            │   ├── UI-CONTEXT.md
+            │   ├── CODING-STANDARDS.md
+            │   ├── AI-WORKFLOW-RULES.md
+            │   ├── PROGRESS.md
+            │   └── DECISIONS.md
+            └── local-docs/        gitignored
+                ├── goal.md        private
+                ├── setup.md
+                └── architecture.html</pre>
+
+<h3>Installing the plugins</h3>
+<pre>/plugin marketplace add paufar/paula-tools-marketplace
+/plugin install project-foundation@paula-tools
+/plugin install learning-tools@paula-tools</pre>
+<p class="note">Skills are then invoked with the plugin name as a prefix: <code>/project-foundation:init-project</code>, <code>/project-foundation:test-me</code>, <code>/learning-tools:interview-prep</code>, <code>/learning-tools:close-session</code>. In the rest of this page, <code>templates/</code> means <code>plugins/project-foundation/templates/</code>.</p>
+
+<h2 id="entry">Entry files</h2>
+<p class="note">Below are the entry files in <code>templates/</code>, which are copied into projects. The repo root also has its own <code>AGENTS.md</code> and <code>CLAUDE.md</code> with the rules for maintaining this template repo. Those are never copied. Only the contents of <code>templates/</code> go into a project.</p>
+
+<div class="card">
+  <h3>AGENTS.md <span class="tag git">committed</span></h3>
+  <div class="path">templates/AGENTS.md</div>
+  <dl>
+    <dt>Holds</dt><dd>Project overview, tech stack and versions, first-run commands, hard constraints, a map of the context docs, and the clock in / clock out routine.</dd>
+    <dt>Why it exists</dt><dd>It is the one file the agent is told to read first. It stays short and points to detail elsewhere, so the agent reads only what the task needs.</dd>
+    <dt>Without it</dt><dd>The agent skips the context docs and guesses.</dd>
+    <dt>Updated</dt><dd>When the stack, commands or hard constraints change.</dd>
+  </dl>
+</div>
+
+<div class="card">
+  <h3>CLAUDE.md <span class="tag git">committed</span></h3>
+  <div class="path">templates/CLAUDE.md</div>
+  <dl>
+    <dt>Holds</dt><dd>A short instruction to read <code>AGENTS.md</code> and follow it every session.</dd>
+    <dt>Why it exists</dt><dd>Claude Code looks for <code>CLAUDE.md</code>; other agents look for <code>AGENTS.md</code>. The pointer keeps one source of truth.</dd>
+    <dt>Updated</dt><dd>Almost never.</dd>
+  </dl>
+</div>
+
+<div class="card">
+  <h3>Makefile <span class="tag git">committed</span></h3>
+  <div class="path">templates/Makefile</div>
+  <dl>
+    <dt>Holds</dt><dd>A single <code>make check</code> target. The stub fails on purpose until replaced with real lint, type-check, test and build commands.</dd>
+    <dt>Why it exists</dt><dd>Clock in and clock out both need one command that answers "is the repo consistent?". The agent should not have to work out which commands to run.</dd>
+    <dt>Updated</dt><dd>Once at setup, then whenever a check is added or removed.</dd>
+  </dl>
+</div>
+
+<h2 id="context">Context docs</h2>
+<p class="note">All in <code>context/</code>, all committed. Each is capped at 100 - 150 lines once filled in.</p>
+
+<div class="card">
+  <h3>PROJECT.md</h3>
+  <dl>
+    <dt>Holds</dt><dd>Overview, goals, core user flow, features, in and out of scope, success criteria.</dd>
+    <dt>Why it exists</dt><dd>Defines <em>what</em> is being built, so the agent never invents product behaviour.</dd>
+    <dt>Updated</dt><dd>When scope changes.</dd>
+  </dl>
+</div>
+
+<div class="card">
+  <h3>ARCHITECTURE.md</h3>
+  <dl>
+    <dt>Holds</dt><dd>Stack and roles, system boundaries per folder, storage model, auth and access model, invariants.</dd>
+    <dt>Why it exists</dt><dd>Defines <em>how the system fits together</em> and the rules that must never be broken. Invariants are referenced from the hard constraints in <code>AGENTS.md</code>.</dd>
+    <dt>Updated</dt><dd>When boundaries, storage or auth change.</dd>
+  </dl>
+</div>
+
+<div class="card">
+  <h3>UI-CONTEXT.md</h3>
+  <dl>
+    <dt>Holds</dt><dd>Theme, colour tokens, typography, radius scale, component library, layout patterns, icons.</dd>
+    <dt>Why it exists</dt><dd>Keeps the interface consistent across sessions. Without tokens the agent hardcodes values and each screen drifts.</dd>
+    <dt>Updated</dt><dd>When the design language changes.</dd>
+  </dl>
+</div>
+
+<div class="card">
+  <h3>CODING-STANDARDS.md</h3>
+  <dl>
+    <dt>Holds</dt><dd>Rules per area: general, language, framework, styling, API routes, data, file organisation.</dd>
+    <dt>Why it exists</dt><dd>Defines <em>how code is written</em>, so output matches the existing codebase rather than the agent's defaults.</dd>
+    <dt>Updated</dt><dd>When a convention is added or changed.</dd>
+  </dl>
+</div>
+
+<div class="card">
+  <h3>AI-WORKFLOW-RULES.md</h3>
+  <dl>
+    <dt>Holds</dt><dd>Development approach, scoping rules, the work in progress limit (1), when to split work, how the agent should work with me (explanation style, tools to prefer), handling missing requirements, protected files, the checklist before moving to the next unit.</dd>
+    <dt>Why it exists</dt><dd>Governs <em>how the agent works</em>: one task at a time, small verifiable steps, no invented requirements, docs kept in sync.</dd>
+    <dt>Updated</dt><dd>When the process changes, and when protected files are added.</dd>
+  </dl>
+</div>
+
+<div class="card">
+  <h3>PROGRESS.md</h3>
+  <dl>
+    <dt>Holds</dt><dd>Current phase and goal, Done, In Progress, Blocked, Next Steps, open questions, session notes. Every item has a checkable "Done when", and at most one item is In Progress (WIP limit 1).</dd>
+    <dt>Why it exists</dt><dd>It is the agent's memory. The agent clocks in from it and clocks out by updating it. An item moves to Done only with evidence.</dd>
+    <dt>Updated</dt><dd>Every session.</dd>
+  </dl>
+</div>
+
+<div class="card">
+  <h3>DECISIONS.md</h3>
+  <dl>
+    <dt>Holds</dt><dd>Dated decisions with reasoning and what they supersede.</dd>
+    <dt>Why it exists</dt><dd>Keeps the <em>why</em> behind choices so the agent does not undo them, and keeps <code>PROGRESS.md</code> free of reasoning.</dd>
+    <dt>Updated</dt><dd>Whenever a non-obvious decision is made.</dd>
+  </dl>
+</div>
+
+<p class="note">Feature specs go in <code>context/specs/</code> (one per unit, <code>00-build-plan.md</code> first). The folder is created per project and is not part of the templates.</p>
+
+<h2 id="local">Local docs</h2>
+<p class="note">In <code>local-docs/</code>, <strong>gitignored</strong>. They are for humans, so <code>AGENTS.md</code> does not reference them.</p>
+
+<div class="card">
+  <h3>goal.md <span class="tag local">private</span></h3>
+  <div class="path">templates/local-docs/goal.md</div>
+  <dl>
+    <dt>Holds</dt><dd>What I want to get out of the project for myself: goals, learning targets (skill, tool or plugin, current and target level), how I want the agent to help, boundaries, how I will know it worked, and a "Cleared for Public Files" table.</dd>
+    <dt>Why it exists</dt><dd>I often use a project to learn something. The skill reads this file first so its options and questions fit that. The table is the only route into committed files: each approved row is distilled into agent-directed wording (for example in <code>AI-WORKFLOW-RULES.md</code>), free of personal detail. Everything else stays private.</dd>
+  </dl>
+</div>
+
+<div class="card">
+  <h3>setup.md <span class="tag local">gitignored</span></h3>
+  <div class="path">templates/local-docs/setup.md</div>
+  <dl>
+    <dt>Holds</dt><dd>Prerequisites, environment variables, install, database, run, verify, everyday commands, deployment, troubleshooting.</dd>
+    <dt>Why it exists</dt><dd>Gets a clean machine to a passing <code>make check</code>, and is where to look when setup breaks.</dd>
+  </dl>
+</div>
+
+<div class="card">
+  <h3>architecture.html <span class="tag local">gitignored</span></h3>
+  <div class="path">templates/local-docs/architecture.html</div>
+  <dl>
+    <dt>Holds</dt><dd>An illustrated expansion of <code>ARCHITECTURE.md</code>: diagram, flows, storage and data model, invariants with reasons, and an entry for every package, plugin, tool and external service with why it was chosen.</dd>
+    <dt>Why it exists</dt><dd>Lets me return after months and see what is used and why. <code>ARCHITECTURE.md</code> wins if the two disagree.</dd>
+  </dl>
+</div>
+
+<h2 id="rules">Rules that apply everywhere</h2>
+<table>
+  <thead><tr><th>Rule</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr><td>Each markdown template is 100 - 150 lines once filled in</td><td>A short file gets read in full. Overflow moves to a linked doc.</td></tr>
+    <tr><td><code>local-docs/</code> is gitignored and not mentioned in <code>AGENTS.md</code></td><td>The links would break on a fresh clone, and the agent does not need them.</td></tr>
+    <tr><td><code>goal.md</code> is private: only items cleared in its table reach committed files, in distilled wording</td><td>Personal learning goals are not the project's business. Agents still get the guidance that helps them.</td></tr>
+    <tr><td>Work in progress limit is 1</td><td>One unfinished task at a time keeps <code>PROGRESS.md</code> honest and every change verifiable.</td></tr>
+    <tr><td>Nothing is Done without evidence</td><td>"Works" is not a condition. A command or an observable behaviour is.</td></tr>
+    <tr><td>Change the doc before the code drifts from it</td><td>Stale docs are worse than none.</td></tr>
+    <tr><td>When a template changes, update this page and every other affected file in the same change</td><td>This page and the README describe the templates. If they lag, they mislead. The checklist is in the root <code>AGENTS.md</code>.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="init">Using it: the init-project skill</h2>
+<p>Initialization is a skill, not a checklist. Open Claude Code in a new or existing project and run <code>/project-foundation:init-project</code>. It is user-invoked only, so the agent never fires it on its own.</p>
+
+<div class="card">
+  <h3>init-project <span class="tag local">plugin skill</span></h3>
+  <div class="path">plugins/project-foundation/skills/init-project/SKILL.md, SECTIONS.md, EXISTING.md</div>
+  <dl>
+    <dt>Modes</dt><dd><strong>New</strong> for an empty project. <strong>Existing</strong> when the project already has markdown docs: their useful content prefills the templates and the old files are retired.</dd>
+    <dt>Tracker</dt><dd><code>project-initialization.md</code> in the project root shows the status of every step and every file being filled in (Pending, In progress, Done, Skipped, plus Drafting, Approved and Deferred for files). It is created after step 1, updated at every step, and deleted at the end. If a run stops early it stays. <code>/init-project resume</code> picks up where it stopped, and plain <code>/init-project</code> asks whether to resume or start over.</dd>
+    <dt>Steps</dt><dd>
+      1. Confirm the target directory and mode, then create the tracker.<br>
+      2. Existing only: read every markdown file, and agree a table of file, what it holds, which template sections it feeds, and its fate (absorb and delete, keep, ignore).<br>
+      3. Copy the contents of <code>templates/</code> and create <code>context/specs/</code>. Existing files with a template's name are moved to <code>.init-project-old/</code>, not overwritten.<br>
+      4. Add <code>local-docs/</code> to <code>.gitignore</code>.<br>
+      5. Fill in every template with me (below).<br>
+      6. Existing only: check nothing useful is left behind, then delete the absorbed files after I confirm.<br>
+      7. Verify: no stray placeholders, 100 - 150 lines per file, <code>make check</code> is real, at most one item in progress.<br>
+      8. Hand over a summary and delete the tracker. It does not commit.</dd>
+    <dt>How it fills in</dt><dd>File by file, in dependency order: the private <code>goal.md</code> first (it shapes the options offered for everything after it), then PROJECT, ARCHITECTURE, UI-CONTEXT, CODING-STANDARDS, AI-WORKFLOW-RULES, AGENTS, Makefile, PROGRESS, DECISIONS, the build plan and first spec, then <code>local-docs/</code>. Only the parts of <code>goal.md</code> I clear are turned into agent guidance in committed files. Content that already exists is shown first, labelled with the file it came from, and I choose to use it, edit it or replace it. Otherwise it asks one question at a time, offers options with a recommendation, and lets me pick, answer freely, skip or defer. Skipped sections become Open Questions in <code>PROGRESS.md</code>.</dd>
+    <dt>Why it exists</dt><dd>The same steps every time, I make the decisions instead of staring at blank templates, and an existing project keeps its knowledge instead of losing it. <code>SECTIONS.md</code> holds the questions per file. <code>EXISTING.md</code> holds where old content goes and the delete-or-keep rules. Each is read only when needed.</dd>
+    <dt>Where it lives</dt><dd>In the <code>project-foundation</code> plugin, installed from the <code>paula-tools</code> marketplace, so it is available in every project. It reads the templates from the plugin's own <code>templates/</code> folder (<code>${CLAUDE_PLUGIN_ROOT}/templates</code>, set at the top of <code>SKILL.md</code>). The skill and the templates live in the same repo, so a template change and the skill change go in one commit.</dd>
+  </dl>
+</div>
+
+<h2 id="testme">Testing the goals: the test-me skill</h2>
+<p>The other half of <code>goal.md</code>. Run <code>/project-foundation:test-me</code> in a project when it is time to find out whether I achieved what I set out to. User-invoked only.</p>
+<div class="card">
+  <h3>test-me <span class="tag local">plugin skill</span></h3>
+  <div class="path">plugins/project-foundation/skills/test-me/SKILL.md</div>
+  <dl>
+    <dt>Steps</dt><dd>
+      1. Load <code>local-docs/goal.md</code> and the project's context docs and code, so questions rest on real things.<br>
+      2. Set the ground rules: one question at a time, no hints, vague answers get pushed on, skipped goals are recorded as not tested.<br>
+      3. Grill goal by goal, climbing a ladder from recall to explain, apply, predict, diagnose and defend, until my ceiling appears. Doing goals get a small applied task that I do myself.<br>
+      4. Judge each goal: Reached, Partly, Not yet or Not tested, with evidence and the level shown for each learning target.<br>
+      5. Report, then, with my OK, append the result and next steps to the Notes in <code>goal.md</code>.<br>
+      6. Say what to work on, and offer to retest the goals not reached.</dd>
+    <dt>Why it exists</dt><dd>Feeling that I learned something is not evidence. The skill checks my answers against the code and grades what I demonstrated, not my confidence.</dd>
+    <dt>Privacy</dt><dd>Results go only into <code>goal.md</code>. It never edits committed files and never commits.</dd>
+  </dl>
+</div>
+
+<h2 id="interviewprep">Before an interview: the interview-prep skill</h2>
+<p>Works on any repo, and uses <code>goal.md</code> when it is there. Run <code>/learning-tools:interview-prep</code> in any repo, optionally with a vacancy (URL, file or pasted text). User-invoked only.</p>
+<div class="card">
+  <h3>interview-prep <span class="tag local">plugin skill</span></h3>
+  <div class="path">plugins/learning-tools/skills/interview-prep/SKILL.md</div>
+  <dl>
+    <dt>Steps</dt><dd>
+      1. Take in the vacancy: role, seniority and the few things it cares about most.<br>
+      2. Learn the project from evidence: decision docs, dependencies, code and git history, plus <code>goal.md</code> for the areas I was already shaky on. Every claim is labelled documented, visible or inferred, and an unrecorded reason is never invented.<br>
+      3. Brief me: the 30-second pitch, architecture decisions with trade-offs, tools and why, honest weak spots, and a map from the vacancy to the project including gaps.<br>
+      4. Mock interview, one question at a time, weighted towards the vacancy, with brief coaching or none (my choice). Claims are checked against the code.<br>
+      5. Debrief: strong and shaky answers, sharper phrasing, stories to have ready, a re-read checklist.<br>
+      6. With my OK, save the briefing and debrief to <code>local-docs/interview-notes.md</code>. Offer a second round.</dd>
+    <dt>Why it exists</dt><dd>A refresher before an interview, built from what the project really shows, so I can explain my decisions in my own words instead of recalling them cold.</dd>
+    <dt>Privacy</dt><dd>It reads <code>goal.md</code> but never quotes it outside <code>local-docs/</code>. It writes only to the gitignored <code>local-docs/interview-notes.md</code> (it uses <code>git check-ignore</code> and refuses to write if the path is not ignored or is already tracked), never edits <code>goal.md</code> or <code>.gitignore</code>, and never stages or commits anything, even if asked.</dd>
+  </dl>
+</div>
+
+<h2 id="closesession">Ending a session: the close-session skill</h2>
+<p>Works on any session, project-related or not. Run <code>/learning-tools:close-session</code> when stopping, optionally with a focus. User-invoked only.</p>
+<div class="card">
+  <h3>close-session <span class="tag local">plugin skill</span></h3>
+  <div class="path">plugins/learning-tools/skills/close-session/SKILL.md</div>
+  <dl>
+    <dt>Steps</dt><dd>
+      1. Gather from the conversation what the session was about, what was done and decided, and what failed. Run <code>git status</code> or <code>git diff --stat</code> only to confirm facts.<br>
+      2. Write <code>tmp/SESSION_SUMMARY.md</code> (creating <code>tmp/</code> if needed) with topic, what happened, state right now, decisions, dead ends, open questions, open items and to-dos (even if not yet project tasks), next steps and how to resume. Earlier sections are kept, newest first.<br>
+      3. Check <code>tmp/</code> is gitignored and warn if not.<br>
+      4. Reply with the path and a three-line recap.</dd>
+    <dt>Why it exists</dt><dd>A session can be about anything, so its hand-off does not belong in <code>PROGRESS.md</code>, which records the project only. This note lets me or a fresh agent resume cold.</dd>
+    <dt>Privacy</dt><dd>It never edits <code>PROGRESS.md</code>, <code>.gitignore</code> or any project file, never stages or commits, and keeps secrets out of the summary.</dd>
+  </dl>
+</div>
+
+</main>
+</div>
+</body>
+</html>

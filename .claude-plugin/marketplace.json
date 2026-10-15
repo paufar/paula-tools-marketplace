@@ -1,0 +1,17 @@
+{
+  "name": "paula-tools",
+  "description": "Paula's Claude Code skills: AI project foundation and learning tools",
+  "owner": { "name": "Paula Farrugia" },
+  "plugins": [
+    {
+      "name": "project-foundation",
+      "source": "./plugins/project-foundation",
+      "description": "AI project foundation: /init-project copies and fills in the context templates, /test-me checks the personal goals were reached"
+    },
+    {
+      "name": "learning-tools",
+      "source": "./plugins/learning-tools",
+      "description": "/interview-prep refreshes you on a repo and mock-interviews you, /close-session writes a session hand-off summary"
+    }
+  ]
+}
