@@ -89,13 +89,14 @@ It never stages or commits, and warns if `tmp/` is not gitignored.
 ## Installing the plugins
 
 This repo is a Claude Code plugin marketplace named `paula-tools`, with
-three plugins:
+four plugins:
 
 | Plugin | Skills |
 | ------ | ------ |
 | `project-foundation` | `/project-foundation:init-project`, `/project-foundation:test-me`, and the `templates/` they use |
 | `learning-tools` | `/learning-tools:interview-prep`, `/learning-tools:close-session` |
 | `nitpicker` | `/nitpicker:nitpicker`, `/nitpicker:no-loose-ends` |
+| `thoughtful-writing` | `/thoughtful-writing:thoughtful-writing-editor` |
 
 In Claude Code, add the marketplace once, then install the plugins:
 
@@ -104,6 +105,7 @@ In Claude Code, add the marketplace once, then install the plugins:
 /plugin install project-foundation@paula-tools
 /plugin install learning-tools@paula-tools
 /plugin install nitpicker@paula-tools
+/plugin install thoughtful-writing@paula-tools
 ```
 
 To try it from a local clone instead, use
@@ -122,6 +124,7 @@ The repo is the only copy of these skills. Do not also keep them in
 | Before an interview, in any repo | `/learning-tools:interview-prep <vacancy URL, file or text>` | Briefs you on the repo, then mock-interviews you. The vacancy is optional |
 | At the end of any session | `/learning-tools:close-session [focus]` | Writes `tmp/SESSION_SUMMARY.md` so the next session can resume |
 | Before handing a ticket, plan or article to others | `/nitpicker:nitpicker <text, file, ticket ID or URL>` | Lists every decision the reader would have to guess, ranked. See `plugins/nitpicker/README.md` |
+| Turning notes or a draft into an article | `/thoughtful-writing:thoughtful-writing-editor` | Confirms your intent, plans, discusses, then writes the piece in your voice |
 | Writing a ticket, spec or doc | `/nitpicker:no-loose-ends` | Drafts it with the saved writing rules applied |
 
 Typical flow for a new project:
@@ -184,6 +187,9 @@ setup and why each file exists.
     │   ├── .claude-plugin/plugin.json
     │   ├── README.md, docs/explainer.html
     │   └── skills/{nitpicker,no-loose-ends}/
+    ├── thoughtful-writing/      ← Plugin: thoughtful-writing-editor skill (not copied)
+    │   ├── .claude-plugin/plugin.json
+    │   └── skills/thoughtful-writing-editor/SKILL.md
     └── project-foundation/      ← Plugin: init-project and test-me skills + templates (not copied)
         ├── .claude-plugin/plugin.json
         ├── skills/init-project/ ← SKILL.md, SECTIONS.md, EXISTING.md

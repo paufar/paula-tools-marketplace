@@ -17,6 +17,11 @@
       "name": "nitpicker",
       "source": "./plugins/nitpicker",
       "description": "/nitpicker reviews a ticket, plan or article for hidden decisions and turns findings into writing rules, /no-loose-ends writes the next one with those rules applied"
+    },
+    {
+      "name": "thoughtful-writing",
+      "source": "./plugins/thoughtful-writing",
+      "description": "/thoughtful-writing-editor coaches you from notes or a draft to a clear article in your own voice"
     }
   ]
 }

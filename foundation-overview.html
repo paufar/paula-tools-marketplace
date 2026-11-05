@@ -69,6 +69,7 @@
   <a href="#interviewprep">Interview prep</a>
   <a href="#closesession">Close session</a>
   <a href="#nitpicker">Nitpicker</a>
+  <a href="#thoughtful">Thoughtful writing</a>
 </nav>
 
 <main>
@@ -127,6 +128,9 @@
     │   └── skills/
     │       ├── nitpicker/         SKILL.md, scripts/, assets/
     │       └── no-loose-ends/     SKILL.md, references/rules.md
+    ├── thoughtful-writing/        plugin (NOT copied)
+    │   ├── .claude-plugin/plugin.json
+    │   └── skills/thoughtful-writing-editor/SKILL.md
     └── project-foundation/        plugin (NOT copied)
         ├── .claude-plugin/plugin.json
         ├── skills/
@@ -153,8 +157,9 @@
 <pre>/plugin marketplace add paufar/paula-tools-marketplace
 /plugin install project-foundation@paula-tools
 /plugin install learning-tools@paula-tools
-/plugin install nitpicker@paula-tools</pre>
-<p class="note">Skills are then invoked with the plugin name as a prefix: <code>/project-foundation:init-project</code>, <code>/project-foundation:test-me</code>, <code>/learning-tools:interview-prep</code>, <code>/learning-tools:close-session</code>, <code>/nitpicker:nitpicker</code>, <code>/nitpicker:no-loose-ends</code>. In the rest of this page, <code>templates/</code> means <code>plugins/project-foundation/templates/</code>.</p>
+/plugin install nitpicker@paula-tools
+/plugin install thoughtful-writing@paula-tools</pre>
+<p class="note">Skills are then invoked with the plugin name as a prefix: <code>/project-foundation:init-project</code>, <code>/project-foundation:test-me</code>, <code>/learning-tools:interview-prep</code>, <code>/learning-tools:close-session</code>, <code>/nitpicker:nitpicker</code>, <code>/nitpicker:no-loose-ends</code>, <code>/thoughtful-writing:thoughtful-writing-editor</code>. In the rest of this page, <code>templates/</code> means <code>plugins/project-foundation/templates/</code>.</p>
 
 <h2 id="entry">Entry files</h2>
 <p class="note">Below are the entry files in <code>templates/</code>, which are copied into projects. The repo root also has its own <code>AGENTS.md</code> and <code>CLAUDE.md</code> with the rules for maintaining this template repo. Those are never copied. Only the contents of <code>templates/</code> go into a project.</p>
@@ -395,6 +400,17 @@
   <dl>
     <dt>Steps</dt><dd>Load the team rules (<code>references/rules.md</code>) and personal rules, look up names in the repo, draft the text, and list open questions instead of guessing.</dd>
     <dt>Why it exists</dt><dd>Every gap the nitpicker finds becomes a rule, so the same gap does not come back.</dd>
+  </dl>
+</div>
+
+<h2 id="thoughtful">Article coaching: the thoughtful-writing plugin</h2>
+<p>Independent of the templates. Run <code>/thoughtful-writing:thoughtful-writing-editor</code> with notes, a guide or a draft.</p>
+<div class="card">
+  <h3>thoughtful-writing-editor <span class="tag local">plugin skill</span></h3>
+  <div class="path">plugins/thoughtful-writing/skills/thoughtful-writing-editor/SKILL.md</div>
+  <dl>
+    <dt>Steps</dt><dd>Confirm intent, review and plan, discuss, then write the final piece.</dd>
+    <dt>Why it exists</dt><dd>Gets from rough notes to a clear article that still sounds like me.</dd>
   </dl>
 </div>
 

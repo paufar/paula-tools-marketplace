@@ -6,7 +6,7 @@ is not part of the templates and is never copied into a project.
 ## Layout
 
 This repo is a Claude Code plugin marketplace named `paula-tools`
-(`.claude-plugin/marketplace.json`). It holds three plugins. This repo is the
+(`.claude-plugin/marketplace.json`). It holds four plugins. This repo is the
 source of truth for every skill and template: nothing is kept in
 `~/.claude/skills/`, so edit the files here only.
 
@@ -27,6 +27,7 @@ source of truth for every skill and template: nothing is kept in
 | `plugins/nitpicker/` | Plugin with `/nitpicker` and `/no-loose-ends`, with its own `README.md` and `docs/explainer.html`. Independent of the templates | No |
 | `plugins/nitpicker/skills/nitpicker/` | Reviews a ticket, plan or article for hidden decisions and proposes writing rules | No |
 | `plugins/nitpicker/skills/no-loose-ends/` | Writes tickets and docs with the rules applied. Team rules live in `references/rules.md` | No |
+| `plugins/thoughtful-writing/` | Plugin with `/thoughtful-writing-editor`, which coaches notes or a draft into an article in the user's voice. Independent of the templates | No |
 
 In the rest of this file, `templates/` means
 `plugins/project-foundation/templates/`.
