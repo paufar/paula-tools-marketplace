@@ -89,12 +89,13 @@ It never stages or commits, and warns if `tmp/` is not gitignored.
 ## Installing the plugins
 
 This repo is a Claude Code plugin marketplace named `paula-tools`, with
-two plugins:
+three plugins:
 
 | Plugin | Skills |
 | ------ | ------ |
 | `project-foundation` | `/project-foundation:init-project`, `/project-foundation:test-me`, and the `templates/` they use |
 | `learning-tools` | `/learning-tools:interview-prep`, `/learning-tools:close-session` |
+| `nitpicker` | `/nitpicker:nitpicker`, `/nitpicker:no-loose-ends` |
 
 In Claude Code, add the marketplace once, then install the plugins:
 
@@ -102,6 +103,7 @@ In Claude Code, add the marketplace once, then install the plugins:
 /plugin marketplace add paufar/paula-tools-marketplace
 /plugin install project-foundation@paula-tools
 /plugin install learning-tools@paula-tools
+/plugin install nitpicker@paula-tools
 ```
 
 To try it from a local clone instead, use
@@ -119,6 +121,8 @@ The repo is the only copy of these skills. Do not also keep them in
 | Later, to check you reached your own goals | `/project-foundation:test-me` | Interviews you on `local-docs/goal.md` and judges each goal |
 | Before an interview, in any repo | `/learning-tools:interview-prep <vacancy URL, file or text>` | Briefs you on the repo, then mock-interviews you. The vacancy is optional |
 | At the end of any session | `/learning-tools:close-session [focus]` | Writes `tmp/SESSION_SUMMARY.md` so the next session can resume |
+| Before handing a ticket, plan or article to others | `/nitpicker:nitpicker <text, file, ticket ID or URL>` | Lists every decision the reader would have to guess, ranked. See `plugins/nitpicker/README.md` |
+| Writing a ticket, spec or doc | `/nitpicker:no-loose-ends` | Drafts it with the saved writing rules applied |
 
 Typical flow for a new project:
 
@@ -131,7 +135,7 @@ Typical flow for a new project:
 5. When the project is done, run `/project-foundation:test-me`, and
    `/learning-tools:interview-prep` before an interview about it.
 
-All four skills are user-invoked only: the agent never runs them on its own.
+The first four skills are user-invoked only: the agent never runs them on its own.
 
 ## What is in `templates/`
 
@@ -176,6 +180,10 @@ setup and why each file exists.
     ├── learning-tools/          ← Plugin: interview-prep and close-session skills (not copied)
     │   ├── .claude-plugin/plugin.json
     │   └── skills/{interview-prep,close-session}/SKILL.md
+    ├── nitpicker/               ← Plugin: nitpicker and no-loose-ends skills (not copied)
+    │   ├── .claude-plugin/plugin.json
+    │   ├── README.md, docs/explainer.html
+    │   └── skills/{nitpicker,no-loose-ends}/
     └── project-foundation/      ← Plugin: init-project and test-me skills + templates (not copied)
         ├── .claude-plugin/plugin.json
         ├── skills/init-project/ ← SKILL.md, SECTIONS.md, EXISTING.md

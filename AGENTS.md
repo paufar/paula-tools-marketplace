@@ -6,7 +6,7 @@ is not part of the templates and is never copied into a project.
 ## Layout
 
 This repo is a Claude Code plugin marketplace named `paula-tools`
-(`.claude-plugin/marketplace.json`). It holds two plugins. This repo is the
+(`.claude-plugin/marketplace.json`). It holds three plugins. This repo is the
 source of truth for every skill and template: nothing is kept in
 `~/.claude/skills/`, so edit the files here only.
 
@@ -14,7 +14,7 @@ source of truth for every skill and template: nothing is kept in
 | ---- | ---------- | -------------------- |
 | `AGENTS.md` (this file, repo root) | Agents maintaining this repo | No |
 | `CLAUDE.md` (repo root) | Pointer to this file | No |
-| `.claude-plugin/marketplace.json` | The marketplace catalogue: lists both plugins. Add every new plugin here | No |
+| `.claude-plugin/marketplace.json` | The marketplace catalogue: lists every plugin. Add every new plugin here | No |
 | `plugins/project-foundation/` | Plugin with `/init-project`, `/test-me` and the templates | No |
 | `plugins/project-foundation/skills/init-project/` | The `/init-project` skill that copies and fills in the templates. Reads them from `${CLAUDE_PLUGIN_ROOT}/templates` | No |
 | `plugins/project-foundation/skills/test-me/` | The `/test-me` skill that tests the user against `goal.md` | No |
@@ -24,6 +24,9 @@ source of truth for every skill and template: nothing is kept in
 | `plugins/learning-tools/` | Plugin with `/interview-prep` and `/close-session` | No |
 | `plugins/learning-tools/skills/interview-prep/` | Refreshes the user on any repo and mock-interviews them. Reads `local-docs/goal.md` (Learning Targets, Notes) for known weak spots and saves to `local-docs/interview-notes.md` | No |
 | `plugins/learning-tools/skills/close-session/` | Writes a hand-off `tmp/SESSION_SUMMARY.md` for any session, separate from `PROGRESS.md` | No |
+| `plugins/nitpicker/` | Plugin with `/nitpicker` and `/no-loose-ends`, with its own `README.md` and `docs/explainer.html`. Independent of the templates | No |
+| `plugins/nitpicker/skills/nitpicker/` | Reviews a ticket, plan or article for hidden decisions and proposes writing rules | No |
+| `plugins/nitpicker/skills/no-loose-ends/` | Writes tickets and docs with the rules applied. Team rules live in `references/rules.md` | No |
 
 In the rest of this file, `templates/` means
 `plugins/project-foundation/templates/`.

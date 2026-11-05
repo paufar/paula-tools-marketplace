@@ -1,6 +1,6 @@
 {
   "name": "paula-tools",
-  "description": "Paula's Claude Code skills: AI project foundation and learning tools",
+  "description": "Paula's Claude Code skills: AI project foundation and learning tools and writing review",
   "owner": { "name": "Paula Farrugia" },
   "plugins": [
     {
@@ -12,6 +12,11 @@
       "name": "learning-tools",
       "source": "./plugins/learning-tools",
       "description": "/interview-prep refreshes you on a repo and mock-interviews you, /close-session writes a session hand-off summary"
+    },
+    {
+      "name": "nitpicker",
+      "source": "./plugins/nitpicker",
+      "description": "/nitpicker reviews a ticket, plan or article for hidden decisions and turns findings into writing rules, /no-loose-ends writes the next one with those rules applied"
     }
   ]
 }

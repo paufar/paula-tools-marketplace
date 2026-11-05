@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clarity Review</title>
+<style>
+:root {
+  --bg: #f7f6f3; --surface: #ffffff; --surface-2: #f0eee9; --text: #1d1c1a; --muted: #6b6862;
+  --border: #e2dfd8; --accent: #2f5bd3; --accent-soft: #e6ecfb; --block: #b4361f; --block-soft: #fbe9e5;
+  --minor: #8a6a12; --minor-soft: #f8f0d9; --ok: #1f7a4d; --mark: #fff1a8; --mark-text: #1d1c1a; --on-accent: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161615; --surface: #1f1f1d; --surface-2: #2a2927; --text: #ecebe8; --muted: #a29f98;
+    --border: #353431; --accent: #8aa8ff; --accent-soft: #232c45; --block: #ff8a73; --block-soft: #3a211c;
+    --minor: #e3c062; --minor-soft: #352d17; --ok: #6fd19f; --mark: #5a4f12; --mark-text: #f5efc9; --on-accent: #0e1120;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #161615; --surface: #1f1f1d; --surface-2: #2a2927; --text: #ecebe8; --muted: #a29f98;
+  --border: #353431; --accent: #8aa8ff; --accent-soft: #232c45; --block: #ff8a73; --block-soft: #3a211c;
+  --minor: #e3c062; --minor-soft: #352d17; --ok: #6fd19f; --mark: #5a4f12; --mark-text: #f5efc9; --on-accent: #0e1120;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif; }
+.wrap { max-width: 980px; margin: 0 auto; padding: 28px 16px 120px; }
+header h1 { font-size: 22px; margin: 0 0 4px; }
+header .meta { color: var(--muted); font-size: 13px; }
+.verdict { margin-top: 12px; padding: 10px 14px; border-radius: 10px; background: var(--surface);
+  border: 1px solid var(--border); }
+.toolbar { position: sticky; top: 0; z-index: 2; background: var(--bg); padding: 12px 0;
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center; border-bottom: 1px solid var(--border); margin: 16px 0; }
+.toolbar .count { margin-right: auto; color: var(--muted); font-size: 13px; }
+button, select { font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;
+  margin-bottom: 12px; display: grid; grid-template-columns: 28px 1fr; gap: 4px 10px; }
+.card.accepted { border-color: var(--ok); box-shadow: inset 3px 0 0 var(--ok); }
+.card input[type=checkbox] { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--ok); cursor: pointer; }
+.badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 12px; }
+.badge { padding: 1px 8px; border-radius: 99px; font-weight: 600; }
+.badge.blocking { background: var(--block-soft); color: var(--block); }
+.badge.non-blocking { background: var(--minor-soft); color: var(--minor); }
+.badge.kind { background: var(--surface-2); color: var(--muted); font-weight: 500; }
+.badge.missing { background: var(--block-soft); color: var(--block); font-weight: 500; }
+.body { grid-column: 2; min-width: 0; }
+.label { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 10px 0 3px; }
+blockquote { margin: 0; padding: 8px 12px; background: var(--surface-2); border-radius: 8px;
+  white-space: pre-wrap; overflow-wrap: anywhere; }
+.issue { margin: 6px 0 0; }
+textarea { width: 100%; min-height: 64px; resize: vertical; font: inherit; padding: 8px 10px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+.evidence { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+.evidence code, .issue code { background: var(--surface-2); padding: 0 4px; border-radius: 4px; }
+details.preview { margin-top: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+details.preview summary { padding: 12px 16px; cursor: pointer; font-weight: 600; }
+.revised { padding: 0 16px 16px; white-space: pre-wrap; overflow-wrap: anywhere; }
+mark { background: var(--mark); color: var(--mark-text); border-radius: 3px; padding: 0 2px; }
+.footer-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg);
+  padding: 8px 14px; border-radius: 8px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.toast.show { opacity: 1; }
+.empty { color: var(--muted); padding: 24px 0; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="doc-title"></h1>
+    <div class="meta" id="doc-meta"></div>
+    <div class="verdict" id="verdict"></div>
+  </header>
+
+  <div class="toolbar">
+    <span class="count" id="count"></span>
+    <select id="filter" aria-label="Filter">
+      <option value="all">All suggestions</option>
+      <option value="blocking">Blocking only</option>
+      <option value="non-blocking">Non-blocking only</option>
+      <option value="accepted">Accepted</option>
+    </select>
+    <button id="accept-all">Accept all shown</button>
+    <button id="clear-all">Clear</button>
+    <button class="primary" id="copy-decisions">Copy decisions for Claude</button>
+  </div>
+
+  <div id="cards"></div>
+
+  <details class="preview" id="preview" open>
+    <summary>Revised text preview (accepted changes highlighted)</summary>
+    <div class="revised" id="revised"></div>
+  </details>
+  <div class="footer-actions">
+    <button class="primary" id="copy-revised">Copy revised text</button>
+    <button id="download-revised">Download revised .md</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script id="review-data" type="application/json">__REVIEW_DATA__</script>
+<script>
+(function () {
+  var data = JSON.parse(document.getElementById('review-data').textContent);
+  var items = data.items || [];
+  var original = data.original || '';
+  var storeKey = 'nitpicker-review:' + (data.title || '') + ':' + (data.generated || '');
+  var state = { accepted: {}, edits: {} };
+  try { var saved = JSON.parse(localStorage.getItem(storeKey) || 'null'); if (saved) state = saved; } catch (e) {}
+  function save() { try { localStorage.setItem(storeKey, JSON.stringify(state)); } catch (e) {} }
+
+  function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+  function finalText(it) { return state.edits[it.id] != null ? state.edits[it.id] : (it.suggestion || ''); }
+  function found(it) { return it.snippet && original.indexOf(it.snippet) !== -1; }
+
+  document.getElementById('doc-title').textContent = data.title || 'Untitled';
+  document.getElementById('doc-meta').textContent = [data.source, data.generated].filter(Boolean).join(' · ');
+  document.getElementById('verdict').textContent = data.verdict || '';
+
+  function render() {
+    var filter = document.getElementById('filter').value;
+    var box = document.getElementById('cards'); box.innerHTML = '';
+    var shown = 0;
+    items.forEach(function (it) {
+      var acc = !!state.accepted[it.id];
+      if (filter === 'accepted' && !acc) return;
+      if ((filter === 'blocking' || filter === 'non-blocking') && it.severity !== filter) return;
+      shown++;
+      var card = el('div', 'card' + (acc ? ' accepted' : ''));
+      var cb = el('input'); cb.type = 'checkbox'; cb.checked = acc; cb.setAttribute('aria-label', 'Accept suggestion ' + it.id);
+      cb.addEventListener('change', function () { state.accepted[it.id] = cb.checked; save(); render(); });
+      card.appendChild(cb);
+      var body = el('div', 'body');
+      var badges = el('div', 'badges');
+      badges.appendChild(el('span', '', '#' + it.id));
+      badges.appendChild(el('span', 'badge ' + it.severity, it.severity === 'blocking' ? 'Blocking' : 'Non-blocking'));
+      if (it.kind) badges.appendChild(el('span', 'badge kind', it.kind === 'question' ? 'Needs your answer' : 'Rewrite'));
+      if (!found(it)) badges.appendChild(el('span', 'badge missing', 'Snippet not found in text'));
+      body.appendChild(badges);
+      body.appendChild(el('div', 'label', 'Original'));
+      body.appendChild(el('blockquote', '', it.snippet || ''));
+      body.appendChild(el('p', 'issue', it.issue || ''));
+      body.appendChild(el('div', 'label', it.kind === 'question' ? 'Suggested change (fill the [brackets])' : 'Suggested change (editable)'));
+      var ta = el('textarea'); ta.value = finalText(it);
+      ta.addEventListener('input', function () { state.edits[it.id] = ta.value; save(); renderRevised(); });
+      body.appendChild(ta);
+      if (it.evidence) { body.appendChild(el('div', 'label', 'Evidence')); body.appendChild(el('div', 'evidence', it.evidence)); }
+      card.appendChild(body);
+      box.appendChild(card);
+    });
+    if (!shown) box.appendChild(el('div', 'empty', items.length ? 'Nothing matches this filter.' : 'No suggestions. The text reads clearly.'));
+    var accCount = items.filter(function (it) { return state.accepted[it.id]; }).length;
+    var blk = items.filter(function (it) { return it.severity === 'blocking'; }).length;
+    document.getElementById('count').textContent = items.length + ' suggestions · ' + blk + ' blocking · ' + accCount + ' accepted';
+    renderRevised();
+  }
+
+  function segments() {
+    var spans = [];
+    items.forEach(function (it) {
+      if (!state.accepted[it.id] || !it.snippet) return;
+      var at = original.indexOf(it.snippet);
+      if (at === -1) return;
+      spans.push({ start: at, end: at + it.snippet.length, text: finalText(it) });
+    });
+    spans.sort(function (a, b) { return a.start - b.start; });
+    var out = [], pos = 0;
+    spans.forEach(function (s) {
+      if (s.start < pos) return; // overlaps an earlier accepted change; skip
+      out.push({ text: original.slice(pos, s.start) });
+      out.push({ text: s.text, changed: true });
+      pos = s.end;
+    });
+    out.push({ text: original.slice(pos) });
+    return out;
+  }
+  function revisedText() { return segments().map(function (s) { return s.text; }).join(''); }
+  function renderRevised() {
+    var box = document.getElementById('revised'); box.innerHTML = '';
+    if (!original) { box.appendChild(el('div', 'empty', 'Original text was not embedded.')); return; }
+    segments().forEach(function (s) { box.appendChild(s.changed ? el('mark', '', s.text) : document.createTextNode(s.text)); });
+  }
+
+  function toast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(function () { t.classList.remove('show'); }, 1800); }
+  function copy(text, msg) {
+    var done = function () { toast(msg); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+    function fallback() { var ta = el('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) { toast('Copy failed'); } ta.remove(); }
+  }
+
+  document.getElementById('filter').addEventListener('change', render);
+  document.getElementById('accept-all').addEventListener('click', function () {
+    var f = document.getElementById('filter').value;
+    items.forEach(function (it) { if (f === 'all' || f === 'accepted' || it.severity === f) state.accepted[it.id] = true; });
+    save(); render();
+  });
+  document.getElementById('clear-all').addEventListener('click', function () { state.accepted = {}; save(); render(); });
+  document.getElementById('copy-revised').addEventListener('click', function () { copy(revisedText(), 'Revised text copied'); });
+  document.getElementById('download-revised').addEventListener('click', function () {
+    var blob = new Blob([revisedText()], { type: 'text/markdown' });
+    var a = el('a'); a.href = URL.createObjectURL(blob); a.download = (data.slug || 'revised') + '.md'; a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  });
+  document.getElementById('copy-decisions').addEventListener('click', function () {
+    var acc = items.filter(function (it) { return state.accepted[it.id]; });
+    var rej = items.filter(function (it) { return !state.accepted[it.id]; });
+    var lines = ['Nitpicker decisions for "' + (data.title || 'Untitled') + '":', '', 'Accepted (' + acc.length + '):'];
+    acc.forEach(function (it) { lines.push('#' + it.id + ' replace "' + it.snippet + '" with "' + finalText(it) + '"'); });
+    lines.push('', 'Rejected (' + rej.length + '): ' + (rej.map(function (it) { return '#' + it.id; }).join(', ') || 'none'));
+    copy(lines.join('\n'), 'Decisions copied. Paste them back to Claude');
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

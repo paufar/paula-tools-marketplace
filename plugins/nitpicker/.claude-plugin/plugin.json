@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "nitpicker",
+  "version": "1.0.0",
+  "description": "Two skills: nitpicker reviews a ticket, plan or article for hidden decisions and turns findings into writing rules; no-loose-ends writes the next one with those rules applied.",
+  "author": { "name": "Paula Farrugia" },
+  "keywords": ["tickets", "linear", "specs", "writing", "review", "clarity"]
+}

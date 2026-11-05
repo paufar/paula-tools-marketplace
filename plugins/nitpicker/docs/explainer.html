@@ -1,0 +1,448 @@
+<title>Nitpicker</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a proof sheet. Text on the left, reviewer's margin notes on the right; sections read top to bottom like a review pass. */
+:root {
+  --paper: #f4f6f9;
+  --sheet: #ffffff;
+  --ink: #15203a;
+  --ink-soft: #55607a;
+  --rule: #dde2ea;
+  --accent: #2446c7;
+  --accent-soft: #e5eafb;
+  --hl: #ffe27a;
+  --hl-ink: #15203a;
+  --block: #c42a5e;
+  --block-soft: #fbe4ec;
+  --minor: #9a6b00;
+  --minor-soft: #fbf0d4;
+  --ok: #1d7a52;
+  --ok-soft: #dff3ea;
+  --code-bg: #eef1f6;
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Public Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141d; --sheet: #171c27; --ink: #e8ecf4; --ink-soft: #9ba5ba; --rule: #2a3142;
+    --accent: #8fa6ff; --accent-soft: #1f2846; --hl: #6b5a12; --hl-ink: #fff4c7;
+    --block: #ff7fa6; --block-soft: #3a1a27; --minor: #f0c45c; --minor-soft: #33290f;
+    --ok: #6fd3a3; --ok-soft: #14302a; --code-bg: #1e2433; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141d; --sheet: #171c27; --ink: #e8ecf4; --ink-soft: #9ba5ba; --rule: #2a3142;
+  --accent: #8fa6ff; --accent-soft: #1f2846; --hl: #6b5a12; --hl-ink: #fff4c7;
+  --block: #ff7fa6; --block-soft: #3a1a27; --minor: #f0c45c; --minor-soft: #33290f;
+  --ok: #6fd3a3; --ok-soft: #14302a; --code-bg: #1e2433; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--paper); color: var(--ink);
+  font: 16px/1.6 var(--font-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.page { max-width: 1040px; margin: 0 auto; padding-block: 48px 96px; display: grid; gap: 72px; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(44px, 8vw, 76px); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: clamp(26px, 4vw, 34px); font-weight: 700; letter-spacing: -0.01em; }
+h3 { font-size: 19px; font-weight: 700; }
+p { margin: 0; }
+.eyebrow { font: 600 12px/1 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.lede { font-size: 19px; color: var(--ink-soft); max-width: 62ch; }
+.section-head { display: grid; gap: 10px; margin-bottom: 24px; max-width: 68ch; }
+.section-head p { color: var(--ink-soft); }
+code, .mono { font-family: var(--font-mono); font-size: .88em; }
+code { background: var(--code-bg); padding: 1px 6px; border-radius: 5px; overflow-wrap: anywhere; }
+mark { background: var(--hl); color: var(--hl-ink); padding: 0 2px; border-radius: 2px; }
+sup.ref { font: 700 11px/1 var(--font-mono); color: var(--block); margin-left: 1px; }
+
+/* Hero */
+.hero { display: grid; gap: 20px; }
+.hero-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; }
+.hero-title .squiggle { text-decoration: underline wavy var(--block); text-decoration-thickness: 3px; text-underline-offset: 10px; }
+.cmd { display: inline-flex; flex-wrap: wrap; gap: 8px; align-items: center; font-family: var(--font-mono); font-size: 14px;
+  background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 8px 12px; max-width: 100%; }
+.cmd .prompt { color: var(--ink-soft); }
+
+/* Proof sheet */
+.proof { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); background: var(--sheet);
+  border: 1px solid var(--rule); border-radius: 14px; overflow: hidden; }
+.proof .text { padding: 24px 26px; border-right: 1px dashed var(--rule); min-width: 0; }
+.proof .text .doc-label { font: 600 11px/1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 12px; }
+.proof .text .doc-title { font-weight: 600; margin-bottom: 8px; }
+.proof .text p + p { margin-top: 10px; }
+.proof .notes { padding: 24px 22px; display: grid; gap: 14px; align-content: start; background: color-mix(in srgb, var(--paper) 55%, var(--sheet)); min-width: 0; }
+.note { display: grid; grid-template-columns: 26px 1fr; gap: 10px; font-size: 14px; }
+.note .n { font: 700 12px/26px var(--font-mono); width: 26px; height: 26px; text-align: center; border-radius: 50%;
+  background: var(--block-soft); color: var(--block); }
+.note.minor .n { background: var(--minor-soft); color: var(--minor); }
+.note .q { font-weight: 600; }
+.note .why { color: var(--ink-soft); }
+@media (max-width: 720px) {
+  .proof { grid-template-columns: 1fr; }
+  .proof .text { border-right: 0; border-bottom: 1px dashed var(--rule); }
+}
+
+/* Flags */
+.flags { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 14px; }
+.flag { background: var(--sheet); border: 1px solid var(--rule); border-radius: 12px; padding: 16px 18px; display: grid; gap: 8px; align-content: start; }
+.flag .phrase { font-family: var(--font-mono); font-size: 13px; color: var(--ink-soft); }
+.flag .asks { font-size: 15px; }
+.flag .asks::before { content: "Asks: "; font-weight: 600; color: var(--accent); }
+
+/* Ranking */
+.ranking { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px; }
+.rank { border-radius: 12px; padding: 20px 22px; display: grid; gap: 10px; align-content: start; }
+.rank.blocking { background: var(--block-soft); }
+.rank.minor { background: var(--minor-soft); }
+.rank h3 { display: flex; gap: 10px; align-items: center; }
+.pill { font: 600 11px/1 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; padding: 5px 9px; border-radius: 99px; }
+.pill.blocking { background: var(--block); color: var(--sheet); }
+.pill.minor { background: var(--minor); color: var(--sheet); }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.rank ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+
+/* Modes */
+.modes { display: grid; gap: 18px; }
+.mode { background: var(--sheet); border: 1px solid var(--rule); border-radius: 14px; display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); overflow: hidden; }
+.mode .about { padding: 22px 24px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.mode .about .when { font-size: 14px; color: var(--ink-soft); }
+.mode .about .when strong { color: var(--ink); }
+.mode .sample { background: var(--code-bg); padding: 20px 22px; min-width: 0; overflow-x: auto; }
+.mode .sample pre { margin: 0; font: 13px/1.6 var(--font-mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+.mode .sample .dim { color: var(--ink-soft); }
+.mode .sample .hb { color: var(--block); font-weight: 600; }
+.mode .sample .hm { color: var(--minor); font-weight: 600; }
+@media (max-width: 760px) { .mode { grid-template-columns: 1fr; } }
+
+/* Mini accept card (text mode sample) */
+.mini { background: var(--sheet); border: 1px solid var(--rule); border-radius: 10px; padding: 12px 14px; display: grid;
+  grid-template-columns: 22px minmax(0, 1fr); gap: 4px 10px; font-size: 14px; }
+.mini + .mini { margin-top: 10px; }
+.mini.on { border-color: var(--ok); box-shadow: inset 3px 0 0 var(--ok); }
+.mini input { width: 17px; height: 17px; margin-top: 2px; accent-color: var(--ok); cursor: pointer; }
+.mini .body { display: grid; gap: 6px; min-width: 0; }
+.mini .orig { background: var(--code-bg); border-radius: 6px; padding: 6px 9px; text-decoration: line-through; text-decoration-color: var(--block); color: var(--ink-soft); }
+.mini .sugg { background: var(--ok-soft); border-radius: 6px; padding: 6px 9px; }
+.mini .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.mini-hint { font-size: 12px; color: var(--ink-soft); margin-top: 10px; }
+
+/* Use cases */
+.uses { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 12px; }
+.use { border-top: 3px solid var(--accent); background: var(--sheet); border-radius: 0 0 10px 10px; padding: 14px 16px; display: grid; gap: 6px; align-content: start; }
+.use .who { font: 600 11px/1.3 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); }
+.use .mode-tag { font-family: var(--font-mono); font-size: 12px; color: var(--accent); }
+
+/* Params table */
+.table-wrap { overflow-x: auto; background: var(--sheet); border: 1px solid var(--rule); border-radius: 12px; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 15px; }
+th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font: 600 12px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
+tr:last-child td { border-bottom: 0; }
+.phrases { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.phrases span { font-size: 14px; background: var(--accent-soft); color: var(--accent); padding: 5px 11px; border-radius: 99px; }
+
+/* Won't do */
+.wont { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 14px; }
+.wont div { padding: 16px 18px; border: 1px dashed var(--rule); border-radius: 12px; display: grid; gap: 6px; }
+.wont strong { font-family: var(--font-display); font-size: 17px; }
+.wont p { color: var(--ink-soft); font-size: 15px; }
+
+footer { color: var(--ink-soft); font-size: 14px; border-top: 1px solid var(--rule); padding-top: 20px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+
+<main class="page">
+
+  <section class="hero">
+    <span class="eyebrow">A Claude Code skill</span>
+    <div class="hero-title"><h1><span class="squiggle">Nitpicker</span></h1></div>
+    <p class="lede">Nitpicker reads your ticket, plan, or article the way a smart newcomer would. They have only the text and the repo, they do exactly what the text says, and they can't ask you anything. Every spot where they would have to guess becomes a question for you, ranked by how costly a wrong guess would be.</p>
+    <div class="cmd"><span class="prompt">&gt;</span> /nitpicker DAS-2516</div>
+
+    <div class="proof" aria-label="A real run: DAS-2516 with Nitpicker's margin notes">
+      <div class="text">
+        <div class="doc-label">Real run · DAS-2516 · lines quoted from the ticket</div>
+        <p class="doc-title">Operators see and edit every pair's settings in the BO</p>
+        <p>Using a pool address that another pair already uses shows a warning; <mark>saving is still allowed</mark><sup class="ref">1</sup>.</p>
+        <p>After saving, <mark>the BO says the change reaches live prices within about 5 minutes</mark><sup class="ref">2</sup>.</p>
+        <p>Edit is hidden without <mark><code>price-oracle:settings:write</code></mark><sup class="ref">3</sup>; the server refuses an update without it.</p>
+        <p>Bench: <mark>staging BO</mark><sup class="ref">4</sup>. Checked: … config export shows the new value.</p>
+        <p>A base58 address is saved exactly as entered; an EVM address <mark>may be normalised</mark><sup class="ref">5</sup>.</p>
+      </div>
+      <div class="notes">
+        <div class="note"><span class="n">1</span><div><div class="q">Allow a reused pool, when the database forbids it?</div><div class="why">A unique index on <code>(sourceId, poolAddress)</code> at <code>oracle-config.ts:198</code> blocks every save of this kind. This was the cause of the QA failure DAS-2799.</div></div></div>
+        <div class="note"><span class="n">2</span><div><div class="q">Show this before the live-config ticket is on?</div><div class="why">The ticket's own Feature flag section says live prices don't read the BO yet, so until then the message isn't true.</div></div></div>
+        <div class="note"><span class="n">3</span><div><div class="q">This name, or the code's <code>oracle:currencies:write</code>?</div><div class="why">The code's permission also allows creating pairs (<code>oracle-config.controller.ts:274</code>), which the ticket treats as separate work.</div></div></div>
+        <div class="note"><span class="n">4</span><div><div class="q">Do the Integration QA results count as the Proof?</div><div class="why">QA ran on <code>bo-integration</code>, and its summary doesn't mention the export diff.</div></div></div>
+        <div class="note minor"><span class="n">5</span><div><div class="q">Lowercase, checksummed, or as entered?</div><div class="why">Non-blocking, but the choice decides whether the same pool in different letter case counts as a reuse.</div></div></div>
+      </div>
+    </div>
+    <p class="mini-hint">Nitpicker found these after QA had already passed 11 of 12 test cases. Each blocking note is a place where the ticket and the code disagree, or where the ticket doesn't define done.</p>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">How it reads</span>
+      <h2>Certain phrases hide a decision</h2>
+      <p>Nitpicker reads the whole text once, then again sentence by sentence. For each sentence it asks what the reader would have to decide alone. These patterns get flagged on sight. It checks the repo and linked docs for answers first, and attaches what it finds as evidence. It still asks you, because the code shows what exists, and only you know what you intend.</p>
+    </div>
+    <div class="flags">
+      <div class="flag"><h3>Vague words</h3><div class="phrase">should · just · simply · as needed · appropriately</div><div class="asks">Who decides, and by what rule?</div></div>
+      <div class="flag"><h3>"Follow the pattern"</h3><div class="phrase">like we do elsewhere · the usual way</div><div class="asks">Which file and function? If there are several candidates, or none, that's a question.</div></div>
+      <div class="flag"><h3>Named things</h3><div class="phrase">files · symbols · commands · config keys · people</div><div class="asks">Does each one exist? A missing one blocks the work.</div></div>
+      <div class="flag"><h3>Lists and inputs</h3><div class="phrase">the users · the payload · each row</div><div class="asks">What if it's empty, missing, duplicated, or malformed?</div></div>
+      <div class="flag"><h3>Boundaries</h3><div class="phrase">calls the API · runs nightly · writes to the DB</div><div class="asks">What happens on failure, timeout, concurrent use, or a second run?</div></div>
+      <div class="flag"><h3>Tests</h3><div class="phrase">add tests · make sure it works</div><div class="asks">Which tests, which command, what expected output?</div></div>
+      <div class="flag"><h3>Scope words</h3><div class="phrase">all · every · the relevant</div><div class="asks">What do they actually cover? It counts them and checks whether the number surprises you.</div></div>
+      <div class="flag"><h3>Fuzzy "done"</h3><div class="phrase">works · looks right · is clean · is faster</div><div class="asks">What would you see when it's done?</div></div>
+      <div class="flag"><h3>Reader gaps in prose</h3><div class="phrase">acronyms · "next week" · "the team" · "it"</div><div class="asks">Which team, which date and timezone, and what does "it" refer to?</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Ranking</span>
+      <h2>Two piles: blocking and non-blocking</h2>
+      <p>Not every gap matters equally. Questions are ranked by what a wrong guess would cost, highest first. Similar questions are merged so you answer each decision once.</p>
+    </div>
+    <div class="ranking">
+      <div class="rank blocking">
+        <h3><span class="pill blocking">Blocking</span> A wrong guess changes the work</h3>
+        <ul>
+          <li>Different files or systems get touched</li>
+          <li>A different interface or data shape</li>
+          <li>A different definition of done</li>
+          <li>Hard to undo: migrations, deletions, anything sent or published</li>
+          <li>Runs unattended on the guess: cron jobs, automations, agents</li>
+        </ul>
+      </div>
+      <div class="rank minor">
+        <h3><span class="pill minor">Non-blocking</span> Cheap to fix in review</h3>
+        <ul>
+          <li>Naming, wording, and small defaults</li>
+          <li>Error messages and log text</li>
+          <li>Anything a reviewer would catch in one comment</li>
+        </ul>
+        <p>Add <code>--blocking-only</code> to skip these when you only need to know whether work can start.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Output</span>
+      <h2>Three modes, one for each kind of text</h2>
+      <p>Name a mode, or leave it out and Nitpicker picks one from the input and tells you which.</p>
+    </div>
+    <div class="modes">
+
+      <article class="mode">
+        <div class="about">
+          <span class="eyebrow">ticket</span>
+          <h3>Questions for the author, plus recommendations</h3>
+          <p>A short list you can answer in one sitting. It's split into "must answer before work starts" and "worth answering", followed by concrete things to add to the ticket.</p>
+          <p class="when"><strong>Auto-picked for</strong> Linear IDs and anything shaped like a work item. It can post the questions as a ticket comment, but only if you say yes.</p>
+          <div class="cmd"><span class="prompt">&gt;</span> /nitpicker ticket DAS-2516</div>
+        </div>
+        <div class="sample"><pre><span class="dim"># Questions before this is ready: DAS-2516 (real run, shortened)</span>
+Verdict: <span class="hb">Not ready to close: 4 blocking questions</span>
+
+<span class="hb">## Must answer before work starts</span>
+1. Should a reused pool address be allowed,
+   given the database forbids it?
+   Why: allowing it needs a migration; forbidding
+   it changes the AC and the warning text
+   Found: oracle-config.ts:198 unique index;
+   QA failure DAS-2799
+2. Show "live within ~5 min" before the
+   live-config ticket is switched on?
+3. Ticket's permission names, or the code's?
+
+<span class="hm">## Worth answering</span>
+- Scope says dapps; PR #20 is in the backoffice repo
+
+## Recommendations
+- Update Decision: None with the 29 Sep and
+  3 Nov decisions
+- Fill in Files and Size from PR #20</pre></div>
+      </article>
+
+      <article class="mode">
+        <div class="about">
+          <span class="eyebrow">text</span>
+          <h3>An accept/reject page for prose</h3>
+          <p>An interactive page with each flagged snippet, what's unclear, and an editable suggested rewrite with a checkbox. A live preview shows the revised text. You can copy or download it, or copy your decisions and paste them back to Claude to apply.</p>
+          <p class="when"><strong>Auto-picked for</strong> articles, blog posts, doc pages, announcements, READMEs, and emails.</p>
+          <div class="cmd"><span class="prompt">&gt;</span> /nitpicker text drafts/launch-post.md</div>
+        </div>
+        <div class="sample">
+          <label class="mini on" id="mini-1-wrap">
+            <input type="checkbox" id="mini-1" checked aria-label="Accept suggestion 1">
+            <span class="body">
+              <span class="tags"><span class="pill blocking">Blocking</span><span class="pill ok">Needs your answer</span></span>
+              <span class="orig">The new dashboard rolls out next week.</span>
+              <span class="sugg">The new dashboard rolls out on [date] to [all users / beta group].</span>
+            </span>
+          </label>
+          <label class="mini" id="mini-2-wrap">
+            <input type="checkbox" id="mini-2" aria-label="Accept suggestion 2">
+            <span class="body">
+              <span class="tags"><span class="pill minor">Non-blocking</span></span>
+              <span class="orig">Simply enable it in settings.</span>
+              <span class="sugg">Turn it on under Settings → Labs → New dashboard.</span>
+            </span>
+          </label>
+          <p class="mini-hint">Example cards. Try the checkboxes. Decisions that need you show up as [brackets] for you to fill in. Nitpicker never guesses them.</p>
+        </div>
+      </article>
+
+      <article class="mode">
+        <div class="about">
+          <span class="eyebrow">report</span>
+          <h3>A full ranked review with evidence</h3>
+          <p>For implementation plans and specs, especially ones going to an AI agent or someone who won't be able to ask. Each question comes with where it is in the text, why it blocks, evidence from the repo, and which other questions its answer settles. At the end is a list of references it checked and found.</p>
+          <p class="when"><strong>Auto-picked for</strong> plans and specs written against a repository.</p>
+          <div class="cmd"><span class="prompt">&gt;</span> /nitpicker report plans/scheduler-migration.md</div>
+        </div>
+        <div class="sample"><pre><span class="dim"># Nitpicker review: Scheduler migration (example)</span>
+Sources: repo @ main, plan v2
+Verdict: <span class="hb">Not ready: 2 blocking</span>
+
+<span class="hb">### 1. Which of the 14 cron jobs move?</span>
+- Where: "Migrate all cron jobs"
+- Why it blocks: runs unattended; the
+  billing job double-charges if it runs
+  in both schedulers
+- Evidence: 14 entries in infra/cron.yaml,
+  2 marked "legacy"
+- Settles: #4 cutover order
+
+## Verified references
+infra/cron.yaml · scheduler/client.go:12</pre></div>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Learns from every run</span>
+      <h2>Each finding becomes a rule for next time</h2>
+      <p>A review fixes one ticket. After each run, Nitpicker turns its findings into rules about how to write, not about what was written. Each rule names a kind of sentence and what it must always include. It asks before saving them. Its partner skill, <code>no-loose-ends</code>, applies the rules when writing the next ticket, plan or article.</p>
+    </div>
+    <div class="ranking">
+      <div class="rank minor">
+        <h3>Finding</h3>
+        <p>"The new dashboard rolls out next week." Readers can't tell which day it is, or whether it's about them.</p>
+        <p class="mono" style="font-size: 13px; color: var(--ink-soft);">Kind of sentence: an announcement of a change<br>Missing: the date, and who it affects</p>
+      </div>
+      <div class="rank" style="background: var(--ok-soft);">
+        <h3>Rule it became</h3>
+        <p><strong>When you announce a change, always include the exact date and who it affects.</strong></p>
+        <p>It applies to a release note, a holiday email or a migration ticket alike, because it's about the sentence, not the subject.</p>
+      </div>
+    </div>
+    <div class="wont" style="margin-top: 16px;">
+      <div><strong>Personal rules</strong><p>Saved to your machine after you say yes. Each rule tracks how many times its gap has been seen.</p></div>
+      <div><strong>Team rules</strong><p>Bundled with <code>no-loose-ends</code> and changed by PR. A personal rule seen 3+ times gets suggested for the team file.</p></div>
+      <div><strong>Writing with them</strong><p>Ask "write a ticket for…" and <code>no-loose-ends</code> applies the rules, checks the draft against them, and lists open questions instead of guessing.</p></div>
+    </div>
+    <div class="table-wrap" style="margin-top: 16px;">
+      <table>
+        <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>/nitpicker rules</code></td><td>Lists your rules and the team rules with Seen counts, and flags ones ready for the team, possible duplicates and stale rules.</td></tr>
+          <tr><td><code>/nitpicker rules show &lt;title&gt;</code></td><td>Shows one rule in full.</td></tr>
+          <tr><td><code>/nitpicker rules promote --ready</code></td><td>Drafts a PR adding every personal rule seen 3+ times to the team file. It asks before pushing.</td></tr>
+          <tr><td><code>/nitpicker rules remove &lt;title&gt;</code></td><td>Deletes a personal rule, or offers a removal PR for a team rule.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Where it helps</span>
+      <h2>Use it before the text leaves your hands</h2>
+      <p>It's useful anywhere the reader can't easily come back with questions.</p>
+    </div>
+    <div class="uses">
+      <div class="use"><span class="who">Product &amp; eng leads</span><h3>Tickets before refinement</h3><p>Catch the questions devs would ask in standup, before the ticket reaches the sprint.</p><span class="mode-tag">ticket</span></div>
+      <div class="use"><span class="who">Anyone using agents</span><h3>Plans going to an AI agent</h3><p>Agents don't ask, they guess. Close the gaps before the agent runs unattended.</p><span class="mode-tag">report</span></div>
+      <div class="use"><span class="who">Writers &amp; marketing</span><h3>Articles and launch posts</h3><p>Pin down vague dates, undefined terms, and steps readers can't follow.</p><span class="mode-tag">text</span></div>
+      <div class="use"><span class="who">On-call &amp; SRE</span><h3>Runbooks</h3><p>A runbook gets read at 3am under stress. Every "as needed" should be a concrete step.</p><span class="mode-tag">report</span></div>
+      <div class="use"><span class="who">Team leads</span><h3>Onboarding docs</h3><p>Find the tribal knowledge a new hire doesn't have yet.</p><span class="mode-tag">text</span></div>
+      <div class="use"><span class="who">Architects</span><h3>RFCs and specs</h3><p>Check every named service and config key exists before reviewers argue about it.</p><span class="mode-tag">report</span></div>
+      <div class="use"><span class="who">Cross-team work</span><h3>Requests to another team</h3><p>The other team won't ask follow-ups for a week. Answer them in advance.</p><span class="mode-tag">ticket</span></div>
+      <div class="use"><span class="who">Outsourcing</span><h3>Briefs for contractors</h3><p>A different time zone means every gap costs a day. Ship the brief with the gaps already closed.</p><span class="mode-tag">ticket</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Reference</span>
+      <h2>Parameters</h2>
+      <p><code>/nitpicker [mode] [--blocking-only] &lt;input&gt;</code>. You can also ask in plain words.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Param</th><th>Values</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>mode</code></td><td><code>ticket</code> · <code>text</code> · <code>report</code> · omitted</td><td>Picks the output. If omitted, it's picked from the input and the choice is stated.</td></tr>
+          <tr><td><code>--blocking-only</code></td><td>flag</td><td>Leaves out non-blocking items and says how many were left out.</td></tr>
+          <tr><td><code>&lt;input&gt;</code></td><td>pasted text · file path · <code>LIN-123</code> · URL</td><td>The thing to review. Linear tickets are read with their comments, because decisions often live there.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="phrases" aria-label="Phrases that also start it">
+      <span>"nitpick this ticket"</span><span>"is this ready for devs?"</span><span>"poke holes in this"</span>
+      <span>"what's unclear here?"</span><span>"tighten this article"</span><span>"just the blockers"</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Ground rules</span>
+      <h2>What it won't do</h2>
+    </div>
+    <div class="wont">
+      <div><strong>Guess for you</strong><p>It shows evidence, but you make the decision. Anything it can't settle from the text becomes a question or a [placeholder].</p></div>
+      <div><strong>Edit on its own</strong><p>It doesn't change tickets, files, or code until you accept changes, and it never posts a comment you didn't ask for.</p></div>
+      <div><strong>Invent nitpicks</strong><p>If the text is clear, you get a short "ready" verdict. Empty sections are a valid result.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Get it</span>
+      <h2>Install</h2>
+      <p>Nitpicker is a plugin in the <code>paula-tools</code> marketplace. Add the marketplace once, then install the plugin. After that, run <code>/nitpicker:nitpicker</code> and <code>/nitpicker:no-loose-ends</code>, or just ask in plain words, like "nitpick DAS-1234" or "write a ticket for…". The short commands on this page are written without the <code>nitpicker:</code> prefix.</p>
+    </div>
+    <div style="display: grid; gap: 8px; justify-items: start;">
+      <div class="cmd"><span class="prompt">&gt;</span> /plugin marketplace add paufar/paula-tools-marketplace</div>
+      <div class="cmd"><span class="prompt">&gt;</span> /plugin install nitpicker@paula-tools</div>
+    </div>
+    <div class="wont" style="margin-top: 18px;">
+      <div><strong>Linear tickets</strong><p>Passing a ticket ID like <code>DAS-1234</code> needs a Linear connection in Claude Code, for example through Anthropic's <code>engineering</code> plugin, which our org provides. Without one, paste the ticket text instead.</p></div>
+      <div><strong>Accept/reject pages</strong><p><code>text</code> mode publishes a private page to your claude.ai account. Share it from the page's Share menu.</p></div>
+      <div><strong>Evidence from code</strong><p>Run it from a folder that contains the repo, so it can check file names, permissions and schemas against the ticket.</p></div>
+    </div>
+  </section>
+
+  <footer>Nitpicker is a Claude Code skill. Source: <code>github.com/paufar/paula-tools-marketplace</code>. Questions or ideas go to Paula.</footer>
+</main>
+
+<script>
+  [["mini-1", "mini-1-wrap"], ["mini-2", "mini-2-wrap"]].forEach(function (pair) {
+    var box = document.getElementById(pair[0]), wrap = document.getElementById(pair[1]);
+    box.addEventListener("change", function () { wrap.classList.toggle("on", box.checked); });
+  });
+</script>
